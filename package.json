@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "npm run scan && vite",
     "build": "npm run scan && tsc && vite build",
+    "build-notsCkeck": "npm run scan  && vite build",
+
     "scan": "node scripts/generate_manifest.js",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d docs"
   },
   "dependencies": {
     "@tweenjs/tween.js": "^23.1.2",
