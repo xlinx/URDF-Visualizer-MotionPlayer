@@ -30,7 +30,7 @@ interface JointSelection {
 function App() {
   const [robot, setRobot] = useState<URDFRobot | null>(null);
   const [urdfContent, setUrdfContent] = useState<string | null>(null);
-  const [currentFilePath, setCurrentFilePath] = useState<string>("luxuryhand_urdf_0917/urdf/luxuryhand_urdf_0917.urdf");
+  const [currentFilePath, setCurrentFilePath] = useState<string>("/URDF-Visualizer/luxuryhand_urdf_0917/urdf/luxuryhand_urdf_0917.urdf");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
