@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "npm run scan && vite",
-    "build2": "npm run scan && tsc && vite build",
     "build": "npm run scan  && vite build",
 
+    "build2": "npm run scan && tsc && vite build",
     "scan": "node scripts/generate_manifest.js",
     "preview": "vite preview",
     "predeploy": "npm run build",
