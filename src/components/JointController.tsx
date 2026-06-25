@@ -64,7 +64,7 @@ const JointController: React.FC<JointControllerProps> = ({ robot, jointValues, o
         }
 
         return (
-          <div key={joint.name} style={{ marginBottom: '1rem' }}>
+          <div key={joint.name} style={{width:'100%', marginBottom: '0rem' }}>
             <label htmlFor={joint.name}>
               {label}
             </label>
@@ -77,7 +77,7 @@ const JointController: React.FC<JointControllerProps> = ({ robot, jointValues, o
               step={step}
               value={currentValue}
               onChange={(e) => handleSliderChange(joint.name, parseFloat(e.target.value))}
-              style={{ width: '100%' }}
+              // style={{ width: '100%' }}
             />
           </div>
         );

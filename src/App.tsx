@@ -11,6 +11,7 @@ import DisplayOptions from './components/DisplayOptions';
 import InfoPopup from './components/InfoPopup';
 import StructureTree from './components/StructureTree';
 import { getAllFiles, findFileInMap } from './utils/fileUtils';
+import MotionPlayer from "./components/MotionPlayer.tsx";
 
 interface LinkSelection {
   name: string | null;
@@ -29,7 +30,7 @@ interface JointSelection {
 function App() {
   const [robot, setRobot] = useState<URDFRobot | null>(null);
   const [urdfContent, setUrdfContent] = useState<string | null>(null);
-  const [currentFilePath, setCurrentFilePath] = useState<string>('');
+  const [currentFilePath, setCurrentFilePath] = useState<string>("luxuryhand_urdf_0917/urdf/luxuryhand_urdf_0917.urdf");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -37,8 +38,8 @@ function App() {
   // Display options state
   const [showWorldAxes, setShowWorldAxes] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
-  const [showLinkAxes, setShowLinkAxes] = useState(false);
-  const [showJointAxes, setShowJointAxes] = useState(false);
+  const [showLinkAxes, setShowLinkAxes] = useState(true);
+  const [showJointAxes, setShowJointAxes] = useState(true);
   const [showShadows, setShowShadows] = useState(false);
   const [wireframe, setWireframe] = useState(false);
   const [showStructureTree, setShowStructureTree] = useState(false);
@@ -721,7 +722,40 @@ function App() {
           setLoading(false);
       }
   }, []);
+    function setURDF(filename:string){
+        localFilesRef.current.clear();
 
+        setLoading(true);
+        setCurrentFilePath(filename);
+
+        if (filename.endsWith('.xacro')) {
+            fetchAndFlattenXacro(filename)
+                .then(content => {
+                    // Pass as 'local' (true) to skip backend call, but we already flattened it,
+                    // so processAndSetContent will essentially just parse the URDF string.
+                    processAndSetContent(filename, content, true);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setError(`Failed to load Xacro: ${err.message}`);
+                    setLoading(false);
+                });
+        } else {
+            fetch(filename)
+                .then(res => res.text())
+                .then(content => {
+                    setUrdfContent(content);
+                })
+                .catch(() => {
+                    setError(`Failed to fetch ${filename}`);
+                    setLoading(false);
+                });
+        }
+    }
+    useEffect(() => {
+        setURDF(currentFilePath)
+
+    }, []);
   return (
     <div 
         className="app-container"
@@ -747,47 +781,40 @@ function App() {
       <div className={`ui-container ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="ui-content">
             <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-                <h2 style={{ margin: '0 0 0.5rem 0' }}>URDF Visualizer</h2>
-                <a 
-                    href="https://github.com/UNLINEARITY/URDF-Visualizer" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    title="View on GitHub"
-                    style={{ textDecoration: 'none', display: 'inline-block' }}
-                >
-                    <img 
-                        src="https://img.shields.io/github/stars/UNLINEARITY/URDF-Visualizer?style=social" 
-                        alt="GitHub stars" 
-                        style={{ height: '30px' }}
-                    />
-                </a>
-            </div>
-            <p>Load a sample or drag & drop a folder.</p>
-            <select onChange={handleSampleChange} value={sampleFiles.includes(currentFilePath) ? currentFilePath : ""} className="file-input">
-                <option value="">-- Select a Sample --</option>
-                {sampleFiles.map(f => <option key={f} value={f}>{f}</option>)}
-            </select>
-            
-            <label htmlFor="file-upload" className="custom-file-upload btn-file">
-                <i>📄</i> Select URDF/Xacro File
-            </label>
-            <input 
-                id="file-upload"
-                type="file" 
-                accept=".urdf,.xacro" 
-                onChange={handleFileChange} 
-                className="file-input-hidden" 
-            />
+                <h2 style={{ margin: '0 0 0.5rem 0' }}>URDF-God - decade.tw</h2>
 
-            <label htmlFor="folder-upload" className="custom-file-upload btn-folder">
-                <i>📁</i> Select Project Folder
-            </label>
-            <input 
-                id="folder-upload"
-                type="file" 
-                {...{ webkitdirectory: "", directory: "" } as any} 
-                onChange={handleFolderChange} 
-                className="file-input-hidden" 
+            </div>
+            {/*<p>Load a sample or drag & drop a folder.</p>*/}
+            {/*<select onChange={handleSampleChange} value={sampleFiles.includes(currentFilePath) ? currentFilePath : ""} className="file-input">*/}
+            {/*    <option value="">-- Select a Sample --</option>*/}
+            {/*    {sampleFiles.map(f => <option key={f} value={f}>{f}</option>)}*/}
+            {/*</select>*/}
+            
+            {/*<label htmlFor="file-upload" className="custom-file-upload btn-file">*/}
+            {/*    <i>📄</i> Select URDF/Xacro File*/}
+            {/*</label>*/}
+            {/*<input */}
+            {/*    id="file-upload"*/}
+            {/*    type="file" */}
+            {/*    accept=".urdf,.xacro" */}
+            {/*    onChange={handleFileChange} */}
+            {/*    className="file-input-hidden" */}
+            {/*/>*/}
+
+            {/*<label htmlFor="folder-upload" className="custom-file-upload btn-folder">*/}
+            {/*    <i>📁</i> Select Project Folder*/}
+            {/*</label>*/}
+            {/*<input */}
+            {/*    id="folder-upload"*/}
+            {/*    type="file" */}
+            {/*    {...{ webkitdirectory: "", directory: "" } as any} */}
+            {/*    onChange={handleFolderChange} */}
+            {/*    className="file-input-hidden" */}
+            {/*/>*/}
+            <hr />
+            <MotionPlayer
+                robot={robot}
+                onJointChange={handleJointChange}
             />
             <hr />
             <DisplayOptions
@@ -799,11 +826,14 @@ function App() {
             />
             <hr />
             {robot && (
-                <JointController 
-                    robot={robot} 
-                    jointValues={jointValues} 
-                    onJointChange={handleJointChange} 
-                />
+                <>
+                    <JointController
+                        robot={robot}
+                        jointValues={jointValues}
+                        onJointChange={handleJointChange}
+                    />
+
+                </>
             )}
             {error && <div style={{ color: 'red' }}>{error}</div>}
         </div>
